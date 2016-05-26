@@ -1,0 +1,12 @@
+Section CODE:
+	00001900 _BEG_CODE
+	00001915 _END_CODE
+
+Section shadow_vectors:
+	00007efc _BEG_SHADOW_VECTORS
+	00007efe _END_SHADOW_VECTORS
+
+Section vectors:
+	0000fffc _BEG_VECTORS
+	0000fffe _END_VECTORS
+

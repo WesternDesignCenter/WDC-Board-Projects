@@ -1,0 +1,293 @@
+       -                
+     1 -                       ; File: W65C02S_Demo.asm
+     2 -                       ; 08/08/2013
+     3 -                       
+     4 -                            PW 128         ;Page Width (# of char/line)
+     5 -                            PL 60          ;Page Length for HP Laser
+     6 -                            INCLIST ON     ;Add Include files in Listing
+     7 -                       
+     8 -                                       ;*********************************************
+     9 -                                       ;Test for Valid Processor defined in -D option
+    10 -                                       ;*********************************************
+    11 -                           IF  USING_02
+    12 -                           ELSE
+    13 -                               EXIT         "Not Valid Processor: Use -DUSING_02, etc. ! ! ! ! ! ! ! ! ! ! ! !"
+    14 -                           ENDIF
+    15 -                       
+    16 -                       
+    17 -                       
+    18 -                       
+    19 -                       ;****************************************************************************
+    20 -                       ;****************************************************************************
+    21 -                       ; End of testing for proper Command line Options for Assembly of this program
+    22 -                       ;****************************************************************************
+    23 -                       ;****************************************************************************
+    24 -                       
+    25 -                       
+    26 -                                   title  "W65C02S Simulator Program V 1.00 for W65C02 - W65C02S_Demo.asm"
+    27 -                                   sttl
+    28 -                       
+    29 -                       
+    30 -                       ; bgnpkhdr
+    31 -                       ;***************************************************************************
+    32 -                       ;  FILE_NAME: W65C02S_Demo.asm
+    33 -                       ;
+    34 -                       ;  DATA_RIGHTS: Western Design Center
+    35 -                       ;               Copyright(C) 1980-2013
+    36 -                       ;               All rights reserved. Reproduction in any manner,
+    37 -                       ;               in whole or in part, is strictly prohibited without
+    38 -                       ;               the prior written approval of The Western Design Center, Inc (WDC).
+    39 -                       ;
+    40 -                       ;               Information contained in this publication regarding
+    41 -                       ;               device applications and the like is intended through
+    42 -                       ;               suggestion only and may be superseded by updates.
+    43 -                       ;               It is your responsibility to ensure that your application
+    44 -                       ;               meets with your specifications.  No representation or
+    45 -                       ;               warranty is given and no liability is assumed by
+    46 -                       ;               Western Design Center, Inc. with respect to the accuracy
+    47 -                       ;               or use of such information, or infringement of patents
+    48 -                       ;               or other intellectual property rights arising from such
+    49 -                       ;               use or otherwise.  Use of WDC's products
+       -                
+    50 -                       ;               as critical components in life support systems is not
+    51 -                       ;               authorized except with express written approval by
+    52 -                       ;               WDC.  No licenses are conveyed,implicitly or otherwise,
+    53 -                       ;                               under any intellectual property rights.
+    54 -                       ;
+    55 -                       ;
+    56 -                       ;
+    57 -                       ;  TITLE: W65C02S_Demo
+    58 -                       ;
+    59 -                       ;  DESCRIPTION: This File describes the WDC Simulator Example Program.
+    60 -                       ;
+    61 -                       ;
+    62 -                       ;
+    63 -                       ;  DEFINED FUNCTIONS:
+    64 -                       ;          badVec
+    65 -                       ;                   - Process a Bad Interrupt Vector - Hang!
+    66 -                       ;
+    67 -                       ;  SPECIAL_CONSIDERATIONS:
+    68 -                       ;
+    69 -                       ;
+    70 -                       ;  SHARED_DATA:
+    71 -                       ;          None
+    72 -                       ;
+    73 -                       ;  GLOBAL_MODULES:
+    74 -                       ;          None
+    75 -                       ;
+    76 -                       ;  LOCAL_MODULES:
+    77 -                       ;          See above in "DEFINED FUNCTIONS"
+    78 -                       ;
+    79 -                       ;  AUTHOR: David Gray
+    80 -                       ;
+    81 -                       ;  CREATION DATE: August 8, 2013
+    82 -                       ;
+    83 -                       ;  REVISION HISTORY
+    84 -                       ;     Name           Date         Description
+    85 -                       ;     ------------   ----------   ------------------------------------------------
+    86 -                       ;     David Gray         08/08/2013   1.00 Initial
+    87 -                       ;
+    88 -                       ;
+    89 -                       ; NOTE:
+    90 -                       ;    Change the lines for each version - current version is 1.00b
+    91 -                       ;    See -
+    92 -                       ;         title  "W65C02S_Demo Program V 1.0x for W65C02S - W65C02S_Demo.asm"
+    93 -                       ;
+    94 -                       ;
+    95 -                       ;***************************************************************************
+    96 -                       ;endpkhdr
+    97 -                       
+    98 -                       
+    99 -                       ;***************************************************************************
+   100 -                       ;                             Include Files
+   101 -                       ;***************************************************************************
+   102 -                       ;None
+   103 -                       
+   104 -                       
+       -                
+   105 -                       ;***************************************************************************
+   106 -                       ;                              Global Modules
+   107 -                       ;***************************************************************************
+   108 -                       ;None
+   109 -                       
+   110 -                       ;***************************************************************************
+   111 -                       ;                              External Modules
+   112 -                       ;***************************************************************************
+   113 -                       ;None
+   114 -                       
+   115 -                       ;***************************************************************************
+   116 -                       ;                              External Variables
+   117 -                       ;***************************************************************************
+   118 -                       ;None
+   119 -                       
+   120 -                       
+   121 -                       ;***************************************************************************
+   122 -                       ;                               Local Constants
+   123 -                       ;***************************************************************************
+   124 -                       ;
+   125 -                       ;   VIA_BASE:   equ $f0
+   126 -             00007FC0      VIA_BASE:   equ $7FC0       ;; base address of VIA port on SXB
+   127 -             00007FC0      VIA_ORB:    equ VIA_BASE
+   128 -             00007FC0      VIA_IRB:    equ VIA_BASE
+   129 -             00007FC1      VIA_ORA:    equ VIA_BASE+1
+   130 -             00007FC1      VIA_IRA:    equ VIA_BASE+1
+   131 -             00007FC2      VIA_DDRB:   equ VIA_BASE+2
+   132 -             00007FC3      VIA_DDRA:   equ VIA_BASE+3
+   133 -             00007FC4      VIA_T1CLO:  equ VIA_BASE+4
+   134 -             00007FC5      VIA_T1CHI:  equ VIA_BASE+5
+   135 -             00007FC6      VIA_T1LLO:  equ VIA_BASE+6
+   136 -             00007FC7      VIA_T1LHI:  equ VIA_BASE+7
+   137 -             00007FC8      VIA_T2CLO:  equ VIA_BASE+8
+   138 -             00007FC9      VIA_T2CHI:  equ VIA_BASE+9
+   139 -             00007FCA      VIA_SR:     equ VIA_BASE+10
+   140 -             00007FCB      VIA_ACR:    equ VIA_BASE+11
+   141 -             00007FCC      VIA_PCR:    equ VIA_BASE+12
+   142 -             00007FCD      VIA_IFR:    equ VIA_BASE+13
+   143 -             00007FCE      VIA_IER:    equ VIA_BASE+14
+   144 -             00007FCF      VIA_ORANH:  equ VIA_BASE+15
+   145 -             00007FCF      VIA_IRANH:  equ VIA_BASE+15
+   146 -                       
+   147 -                               CHIP    65C02
+   148 -                               LONGI   OFF
+   149 -                               LONGA   OFF
+   150 -                       
+   151 -                           .sttl "W65C02S Demo Code"
+   152 -                           .page
+   153 -                       ;***************************************************************************
+   154 -                       ;***************************************************************************
+   155 -                       ;                    W65C02S_Demo Code Section
+   156 -                       ;***************************************************************************
+   157 -                       ;***************************************************************************
+   158 -                       
+   159 -                       ;Example of how the simulator has the 7 Segment hooked up
+   160 -                       ;It uses PBx.  Each number is a bit of PBx
+   161 -                       ;When the bit is LOW (0), the segment is turned ON.
+   162 -                       ;PB7 is the decimal point.
+   163 -                       ;
+   164 -                       ;   +   0   +
+   165 -                       ;   5       1
+   166 -                       ;   +   6   +
+   167 -                       ;   4       2
+   168 -                       ;   +   3   +   7
+   169 -                       ;
+   170 -                       ;Example code to make a "6" on the LED with the W65C22S Port B
+   171 -                       ;This assumes Port B has already been made all outputs
+   172 -                       ;       lda #$82            ; 10000010  - All segments with a '0' light up
+   173 -                       ;       sta VIA_ORB     ; Display a '6'
+   174 -                       
+   175 -                       
+   176 -                               org $2000
+   177 -                       
+   178 -                           START:
+   179 - 00:2000  78                   sei
+   180 -                       
+   181 - 00:2001  D8                   cld
+   182 - 00:2002  A2 FF                ldx #$ff
+   183 - 00:2004  9A                   txs
+   184 -                       
+   185 -                       ; First, we initialize the VIA chip registers
+   186 - 00:2005  A9 FF                lda #$ff
+   187 - 00:2007  8D C0 7F             sta VIA_ORB   ; start by turning all segments off
+   188 - 00:200A  8D C2 7F             sta VIA_DDRB    ; set all as outputs
+   189 -                       
+   190 -                       ; Now we
+   191 -                           FirstChar:
+   192 - 00:200D  A9 82                lda #$82
+   193 - 00:200F  8D C0 7F             sta VIA_ORB     ; Display a '6'
+   194 - 00:2012  A9 92                lda #$92
+   195 - 00:2014  8D C0 7F             sta VIA_ORB     ; Display a '5'
+   196 - 00:2017  A9 C6                lda #$C6
+   197 - 00:2019  8D C0 7F             sta VIA_ORB     ; Display a 'C'
+   198 - 00:201C  A9 C0                lda #$C0
+   199 - 00:201E  8D C0 7F             sta VIA_ORB     ; Display a '0'
+   200 - 00:2021  A9 A4                lda #$A4
+   201 - 00:2023  8D C0 7F             sta VIA_ORB     ; Display a '2'
+   202 - 00:2026  A9 7F                lda #$7F
+   203 - 00:2028  8D C0 7F             sta VIA_ORB     ; Display a '.'
+   204 - 00:202B  80 E0                bra FirstChar   ; go back to the top and display again
+   205 -                       
+   206 -                       
+   207 -                           IRQHandler:
+   208 - 00:202D  48                   pha
+   209 - 00:202E  AD CD 7F             lda VIA_IFR     ; check interrupt flags register
+   210 - 00:2031  89 40                bit #$40        ; check for timer 1 overflow
+   211 - 00:2033  F0 2A                beq IRQ_done    ; none, nothing to do
+   212 - 00:2035  EE 69 20             inc cnt     ; bump the delay counter
+   213 - 00:2038  AD 69 20             lda cnt
+   214 - 00:203B  CD 6C 20             cmp delay
+   215 - 00:203E  90 1C                bcc IRQ_skip    ; not done delaying yet
+   216 - 00:2040  A9 00                lda #0      ; done, clear counter
+   217 - 00:2042  8D 69 20             sta cnt
+   218 - 00:2045  AD 68 20             lda bits        ; get bit fields
+   219 - 00:2048  49 FF                eor #$ff        ; invert the bits
+   220 - 00:204A  8D C0 7F             sta VIA_ORB     ; change the display
+   221 - 00:204D  0E 68 20             asl bits        ; shift the bits
+   222 - 00:2050  AD 68 20             lda bits        ; check for end of shift
+   223 - 00:2053  C9 40                cmp #$40        ; is it end?
+   224 - 00:2055  D0 05                bne IRQ_skip    ; no, skip
+   225 - 00:2057  A9 01                lda #1      ; yes, reset back to first segment
+   226 - 00:2059  8D 68 20             sta bits
+   227 -                           IRQ_skip:
+   228 - 00:205C  AD C4 7F             lda VIA_T1CLO   ; clear IFR bit
+   229 -                       
+   230 -                           IRQ_done:
+   231 - 00:205F  68                   pla
+   232 - 00:2060  40                   rti
+   233 -                       
+   234 -                       
+   235 -                       badVec:     ; $FFE0 - IRQRVD2(134)
+   236 - 00:2061  08               php
+   237 - 00:2062  48               pha
+   238 - 00:2063  A9 FF            lda #$FF
+   239 -                                       ;clear Irq
+   240 - 00:2065  68               pla
+   241 - 00:2066  28               plp
+   242 - 00:2067  40               rti
+   243 -                       
+   244 -                       This_project_end:
+   245 -             00007C00  WDCMON_RAM_START    EQU $7C00
+   246 -             00005B98  ROMSPACE EQU WDCMON_RAM_START-This_project_end  ;gives space left in the ROM BEFORE WDCMON TABLES
+   247 -                       
+   248 -                           IF ROMSPACE<0
+   249 -                               EXIT         "Not Enough Memory for This Application - bumping into WDCMON! ! ! ! ! ! ! 
+   250 -                           ENDIF
+   251 -                       
+   252 -                       
+   253 - 00:2068  01               bits:   db  1
+   254 - 00:2069  00               cnt:    db  0
+   255 - 00:206A  00 00            wraps:  dw  0
+   256 - 00:206C  0A               delay:  db  10
+   257 -                       
+   258 -                       ;***************************************************************************
+   259 -                       ;***************************************************************************
+   260 -                       ; New for WDCMON V1.04
+   261 -                       ;  Needed to move Shadow Vectors into proper area
+   262 -                       ;***************************************************************************
+   263 -                       ;***************************************************************************
+   264 -                           SH_vectors: section
+   265 -                       Shadow_VECTORS  SECTION OFFSET $7EFA
+   266 -                                           ;65C02 Interrupt Vectors
+   267 -                                           ; Common 8 bit Vectors for all CPUs
+   268 -                       
+   269 - 00:7EFA  61 20                dw  badVec      ; $FFFA -  NMIRQ (ALL)
+   270 - 00:7EFC  00 20                dw  START       ; $FFFC -  RESET (ALL)
+   271 - 00:7EFE  2D 20                dw  IRQHandler  ; $FFFE -  IRQBRK (ALL)
+   272 -                       
+   273 - 00:7F00                           ends
+   274 -                       
+   275 -                       
+   276 -                       ;***************************************************************************
+   277 -                       
+   278 -                       vectors SECTION OFFSET $FFFA
+   279 -                                           ;65C02 Interrupt Vectors
+   280 -                                           ; Common 8 bit Vectors for all CPUs
+   281 -                       
+   282 - 00:FFFA  61 20                dw  badVec      ; $FFFA -  NMIRQ (ALL)
+   283 - 00:FFFC  00 20                dw  START       ; $FFFC -  RESET (ALL)
+   284 - 00:FFFE  2D 20                dw  IRQHandler  ; $FFFE -  IRQBRK (ALL)
+   285 -                       
+   286 - 01:0000                           ends
+   287 -                       
+   288 -                                   end
+       -          mbled: 288  
+       -                  Errors: 0

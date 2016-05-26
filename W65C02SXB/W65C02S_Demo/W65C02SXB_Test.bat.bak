@@ -1,0 +1,12 @@
+REM Make example1 for the W65c02
+REM 01/12/2004
+
+del *.bin
+del *.obj
+del *.lst
+
+WDC02AS -g -l  -DUSING_02 exmpl1
+WDCLN -g -sz -t exmpl1
+WDCSYM -A -L exmpl1.sym>exmpl1_sym.txt
+WDCOBJ exmpl1>exmpl1_obj.txt
+pause

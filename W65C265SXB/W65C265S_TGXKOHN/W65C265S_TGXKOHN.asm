@@ -1,0 +1,108 @@
+	ORG $1000
+start:
+  ; change to 16-bit mode
+  clc
+  xce
+  ; all 16-bit registers
+  REP   #$30         ;16 bit registers
+  LONGI ON
+  LONGA ON
+
+	SEP   #$20         ;8 bit accum
+	LONGA OFF
+
+  ; disable interrupts on port 5
+  lda #0
+  sta $df48
+
+  ; disable UARTs
+  sta $df70
+  sta $df72
+  sta $df74
+;  sta $df76
+
+  ; set port 5 as input
+  lda #0
+  sta $df25
+
+  lda #$ff
+  sta $df21
+
+	SEP   #$20         ;8 bit accum
+	LONGA OFF
+main_while_true:
+
+  rep #$10
+
+  ; ioport_getPortInputValue
+  lda #$ff
+  lda $df21
+
+
+  cmp $2000
+  beq main_while_true
+
+  sta $2000
+
+  tax
+  and #1
+  bne main_not_1
+  ;; LED on
+  lda #$00
+  sta $df23
+  ldx #1357
+  ldy #905
+  lda #3
+  jsl $e009
+  jmp main_while_true
+main_not_1:
+
+  txa
+  and #2
+  bne main_not_2
+  ;; LED on
+  lda #$00
+  sta $df23
+  ldx #959
+  ldy #678
+  lda #3
+  jsl $e009
+  jmp main_while_true
+main_not_2:
+
+  txa
+  and #4
+  bne main_not_4
+  ;; LED on
+  lda #$00
+  sta $df23
+  ldx #1209
+  ldy #959
+  lda #3
+  jsl $e009
+  jmp main_while_true
+main_not_4:
+
+  txa
+  and #8
+  bne main_not_8
+  ;; LED on
+  lda #$00
+  sta $df23
+  ldx #1438
+  ldy #1209
+  lda #3
+  jsl $e009
+  jmp main_while_true
+main_not_8:
+
+  ;; LED off
+  lda #$ff
+  sta $df23
+
+  ldx #0
+  ldy #0
+  lda #0
+  jsl $e009
+
+  jmp main_while_true

@@ -1,0 +1,13 @@
+REM Make Tone Generator for the W65c265
+REM 03/24/2016
+
+del *.bin
+del *.obj
+del *.lst
+
+WDC816AS -g -l -DUSING_265 W65C265S_TGX.asm
+WDCLN -g -sz -t W65C265S_TGX
+WDCLN -g -sz -t -HM28 W65C265S_TGX
+WDCSYM -A -L W65C265S_TGX.sym>W65C265S_TGX_sym.txt
+WDCOBJ W65C265S_TGX>W65C265S_TGX_obj.txt
+pause

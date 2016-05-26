@@ -1,0 +1,127 @@
+  Mon May 16 2016  9:28                                                Page 1
+
+
+                     ***************************************
+                     **      WDC 65C816 Macro Assembler   **
+                     **                                   **
+                     **     Version 3.49.1- Feb  6 2006    **
+                     ***************************************
+
+     1                        	ORG $1000
+     2                        start:
+     3                          ; change to 16-bit mode
+     4 00:1000: 18             clc
+     5 00:1001: FB             xce
+     6                          ; all 16-bit registers
+     7 00:1002: C2 30          REP   #$30         ;16 bit registers
+     8                          LONGI ON
+     9                          LONGA ON
+    10                        
+    11 00:1004: E2 20        	SEP   #$20         ;8 bit accum
+    12                        	LONGA OFF
+    13                        
+    14                          ; disable interrupts on port 5
+    15 00:1006: A9 00          lda #0
+    16 00:1008: 8D 48 DF       sta $df48
+    17                        
+    18                          ; disable UARTs
+    19 00:100B: 8D 70 DF       sta $df70
+    20 00:100E: 8D 72 DF       sta $df72
+    21 00:1011: 8D 74 DF       sta $df74
+    22                        ;  sta $df76
+    23                        
+    24                          ; set port 5 as input
+    25 00:1014: A9 00          lda #0
+    26 00:1016: 8D 25 DF       sta $df25
+    27                        
+    28 00:1019: A9 FF          lda #$ff
+    29 00:101B: 8D 21 DF       sta $df21
+    30                        
+    31 00:101E: E2 20        	SEP   #$20         ;8 bit accum
+    32                        	LONGA OFF
+    33                        main_while_true:
+    34                        
+    35 00:1020: C2 10          rep #$10
+    36                        
+    37                          ; ioport_getPortInputValue
+    38 00:1022: A9 FF          lda #$ff
+    39 00:1024: AD 21 DF       lda $df21
+    40                        
+    41                        
+    42 00:1027: CD 00 20       cmp $2000
+    43 00:102A: F0 F4          beq main_while_true
+    44                        
+    45 00:102C: 8D 00 20       sta $2000
+    46                        
+    47 00:102F: AA             tax
+    48 00:1030: 29 01          and #1
+    49 00:1032: D0 14          bne main_not_1
+    50                          ;; LED on
+    51 00:1034: A9 00          lda #$00
+    52 00:1036: 8D 23 DF       sta $df23
+  Mon May 16 2016  9:28                                                Page 2
+
+
+    53 00:1039: A2 4D 05       ldx #1357
+    54 00:103C: A0 89 03       ldy #905
+    55 00:103F: A9 03          lda #3
+    56 00:1041: 22 09 E0 00    jsl $e009
+    57 00:1045: 4C 20 10       jmp main_while_true
+    58                        main_not_1:
+    59                        
+    60 00:1048: 8A             txa
+    61 00:1049: 29 02          and #2
+    62 00:104B: D0 14          bne main_not_2
+    63                          ;; LED on
+    64 00:104D: A9 00          lda #$00
+    65 00:104F: 8D 23 DF       sta $df23
+    66 00:1052: A2 BF 03       ldx #959
+    67 00:1055: A0 A6 02       ldy #678
+    68 00:1058: A9 03          lda #3
+    69 00:105A: 22 09 E0 00    jsl $e009
+    70 00:105E: 4C 20 10       jmp main_while_true
+    71                        main_not_2:
+    72                        
+    73 00:1061: 8A             txa
+    74 00:1062: 29 04          and #4
+    75 00:1064: D0 14          bne main_not_4
+    76                          ;; LED on
+    77 00:1066: A9 00          lda #$00
+    78 00:1068: 8D 23 DF       sta $df23
+    79 00:106B: A2 B9 04       ldx #1209
+    80 00:106E: A0 BF 03       ldy #959
+    81 00:1071: A9 03          lda #3
+    82 00:1073: 22 09 E0 00    jsl $e009
+    83 00:1077: 4C 20 10       jmp main_while_true
+    84                        main_not_4:
+    85                        
+    86 00:107A: 8A             txa
+    87 00:107B: 29 08          and #8
+    88 00:107D: D0 14          bne main_not_8
+    89                          ;; LED on
+    90 00:107F: A9 00          lda #$00
+    91 00:1081: 8D 23 DF       sta $df23
+    92 00:1084: A2 9E 05       ldx #1438
+    93 00:1087: A0 B9 04       ldy #1209
+    94 00:108A: A9 03          lda #3
+    95 00:108C: 22 09 E0 00    jsl $e009
+    96 00:1090: 4C 20 10       jmp main_while_true
+    97                        main_not_8:
+    98                        
+    99                          ;; LED off
+   100 00:1093: A9 FF          lda #$ff
+   101 00:1095: 8D 23 DF       sta $df23
+   102                        
+   103 00:1098: A2 00 00       ldx #0
+   104 00:109B: A0 00 00       ldy #0
+   105 00:109E: A9 00          lda #0
+   106 00:10A0: 22 09 E0 00    jsl $e009
+   107                        
+   108 00:10A4: 4C 20 10       jmp main_while_true
+
+
+  Mon May 16 2016  9:28                                                Page 3
+
+
+      Lines assembled: 108
+      Errors: 0

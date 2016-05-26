@@ -1,0 +1,336 @@
+       -                
+     1 -                       ; File: W65C265S_LEDDemo.asm
+     2 -                       ; 08/08/2013
+     3 -                       
+     4 -                            PW 128         ;Page Width (# of char/line)
+     5 -                            PL 60          ;Page Length for HP Laser
+     6 -                            INCLIST ON     ;Add Include files in Listing
+     7 -                       
+     8 -                                       ;*********************************************
+     9 -                                       ;Test for Valid Processor defined in -D option
+    10 -                                       ;*********************************************
+    11 -                           IF  USING_816
+    12 -                           ELSE
+    13 -                               EXIT         "Not Valid Processor: Use -DUSING_02, etc. ! ! ! ! ! ! ! ! ! ! ! !"
+    14 -                           ENDIF
+    15 -                       
+    16 -                       
+    17 -                       
+    18 -                       
+    19 -                       ;****************************************************************************
+    20 -                       ;****************************************************************************
+    21 -                       ; End of testing for proper Command line Options for Assembly of this program
+    22 -                       ;****************************************************************************
+    23 -                       ;****************************************************************************
+    24 -                       
+    25 -                       
+    26 -                                   title  "W65C816S Simulator Program V 1.00 for W65C816 - W65C816S_Demo.asm"
+    27 -                                   sttl
+    28 -                       
+    29 -                       
+    30 -                       ; bgnpkhdr
+    31 -                       ;***************************************************************************
+    32 -                       ;  FILE_NAME: W65C265S_LEDDemo.asm
+    33 -                       ;
+    34 -                       ;  DATA_RIGHTS: Western Design Center
+    35 -                       ;               Copyright(C) 2014
+    36 -                       ;               All rights reserved. Reproduction in any manner,
+    37 -                       ;               in whole or in part, is strictly prohibited without
+    38 -                       ;               the prior written approval of The Western Design Center, Inc (WDC).
+    39 -                       ;
+    40 -                       ;               Information contained in this publication regarding
+    41 -                       ;               device applications and the like is intended through
+    42 -                       ;               suggestion only and may be superseded by updates.
+    43 -                       ;               It is your responsibility to ensure that your application
+    44 -                       ;               meets with your specifications.  No representation or
+    45 -                       ;               warranty is given and no liability is assumed by
+    46 -                       ;               Western Design Center, Inc. with respect to the accuracy
+    47 -                       ;               or use of such information, or infringement of patents
+    48 -                       ;               or other intellectual property rights arising from such
+    49 -                       ;               use or otherwise.  Use of WDC's products
+       -                
+    50 -                       ;               as critical components in life support systems is not
+    51 -                       ;               authorized except with express written approval by
+    52 -                       ;               WDC.  No licenses are conveyed,implicitly or otherwise,
+    53 -                       ;                               under any intellectual property rights.
+    54 -                       ;
+    55 -                       ;
+    56 -                       ;
+    57 -                       ;  TITLE: W65C265S_LEDDemo
+    58 -                       ;
+    59 -                       ;  DESCRIPTION: This File describes the WDC Simulator Example Program.
+    60 -                       ;
+    61 -                       ;
+    62 -                       ;
+    63 -                       ;  DEFINED FUNCTIONS:
+    64 -                       ;          badVec
+    65 -                       ;                   - Process a Bad Interrupt Vector - Hang!
+    66 -                       ;
+    67 -                       ;  SPECIAL_CONSIDERATIONS:
+    68 -                       ;
+    69 -                       ;
+    70 -                       ;  SHARED_DATA:
+    71 -                       ;          None
+    72 -                       ;
+    73 -                       ;  GLOBAL_MODULES:
+    74 -                       ;          None
+    75 -                       ;
+    76 -                       ;  LOCAL_MODULES:
+    77 -                       ;          See above in "DEFINED FUNCTIONS"
+    78 -                       ;
+    79 -                       ;  AUTHOR: David Gray
+    80 -                       ;
+    81 -                       ;  CREATION DATE: July 3, 2014
+    82 -                       ;
+    83 -                       ;  REVISION HISTORY
+    84 -                       ;     Name           Date         Description
+    85 -                       ;     ------------   ----------   ------------------------------------------------
+    86 -                       ;     David Gray         07/03/2014   1.00 Initial
+    87 -                       ;
+    88 -                       ;
+    89 -                       ; NOTE:
+    90 -                       ;    Change the lines for each version - current version is 1.00b
+    91 -                       ;    See -
+    92 -                       ;         title  "W65C265S_LEDDemo Program V 1.0x for W65C265S - W65C265S_LEDDemo.asm"
+    93 -                       ;
+    94 -                       ;
+    95 -                       ;***************************************************************************
+    96 -                       ;endpkhdr
+    97 -                       
+    98 -                       
+    99 -                       ;***************************************************************************
+   100 -                       ;                             Include Files
+   101 -                       ;***************************************************************************
+   102 -                       ;None
+   103 -                       
+   104 -                       
+       -                
+   105 -                       ;***************************************************************************
+   106 -                       ;                              Global Modules
+   107 -                       ;***************************************************************************
+   108 -                       ;None
+   109 -                       
+   110 -                       ;***************************************************************************
+   111 -                       ;                              External Modules
+   112 -                       ;***************************************************************************
+   113 -                       ;None
+   114 -                       
+   115 -                       ;***************************************************************************
+   116 -                       ;                              External Variables
+   117 -                       ;***************************************************************************
+   118 -                       ;None
+   119 -                       
+   120 -                       
+   121 -                       ;***************************************************************************
+   122 -                       ;                               Local Constants
+   123 -                       ;***************************************************************************
+   124 -                       ;
+   125 -                       ;   VIA_BASE:   equ $f0
+   126 -                       ;   VIA_BASE:   equ $7FC0       ;; base address of VIA port on SXB
+   127 -                       ;; IO Ports
+   128 -             0000DF27    PCS7:             equ $DF27 ;; Port 7 Chip Select
+   129 -             0000DF26    PDD6:             equ $DF26 ;; Port 6 Data Direction Register
+   130 -             0000DF25    PDD5:             equ $DF25 ;; Port 5 Data Direction Register
+   131 -             0000DF24    PDD4:             equ $DF24 ;; Port 4 Data Direction Register
+   132 -             0000DF07    PDD3:             equ $DF07   ;; Port 3 Data Direction Register
+   133 -             0000DF06    PDD2:             equ $DF06   ;; Port 2 Data Direction Register
+   134 -             0000DF05    PDD1:             equ $DF05   ;; Port 1 Data Direction Register
+   135 -             0000DF04    PDD0:             equ $DF04   ;; Port 0 Data Direction Register
+   136 -             0000DF23    PD7:              equ $DF23 ;; Port 7 Data Register
+   137 -             0000DF22    PD6:              equ $DF22 ;; Port 6 Data Register
+   138 -             0000DF21    PD5:              equ $DF21 ;; Port 5 Data Register
+   139 -             0000DF20    PD4:              equ $DF20 ;; Port 4 Data Register
+   140 -             0000DF03    PD3:              equ $DF03 ;; Port 3 Data Register
+   141 -             0000DF02    PD2:              equ $DF02 ;; Port 2 Data Register
+   142 -             0000DF01    PD1:              equ $DF01 ;; Port 1 Data Register
+   143 -             0000DF00    PD0:              equ $DF00 ;; Port 0 Data Register
+   144 -                       
+   145 -                       ;; Control and Status Register Memory Map
+   146 -             0000DF49    UIER:             equ $DF49 ;; UART Interrupt Enable Register
+   147 -             0000DF48    UIFR:             equ $DF48 ;; UART Interrupt Flag Register
+   148 -             0000DF47    EIER:             equ $DF47 ;; Edge Interrupt Enable Register
+   149 -             0000DF46    TIER:             equ $DF46 ;; Timer Interrupt Enable Register
+   150 -             0000DF45    EIFR:             equ $DF45 ;; Edge Interrupt Flag Register
+   151 -             0000DF44    TIFR:             equ $DF44 ;; Timer Interrupt Flag Register
+   152 -             0000DF43    TER:              equ $DF43 ;; Timer Enable Register
+   153 -             0000DF42    TCR:              equ $DF42 ;; Timer Control Register
+   154 -             0000DF41    SSCR:             equ $DF41 ;; System Speed Control Register
+   155 -             0000DF40    BCR:              equ $DF40 ;; Bus Control Register
+   156 -                       ;; Timer Register Memory Map
+   157 -             0000DF6F    T7CH:             equ $DF6F ;; Timer 7 Counter High
+   158 -             0000DF6E    T7CL:             equ $DF6E ;; Timer 7 Counter Low
+   159 -             0000DF6D    T6CH:             equ $DF6D ;; Timer 6 Counter High
+       -                
+   160 -             0000DF6C    T6CL:             equ $DF6C ;; Timer 6 Counter Low
+   161 -             0000DF6B    T5CH:             equ $DF6B ;; Timer 5 Counter High
+   162 -             0000DF6A    T5CL:             equ $DF6A ;; Timer 5 Counter Low
+   163 -             0000DF69    T4CH:             equ $DF69 ;; Timer 4 Counter High
+   164 -             0000DF68    T4CL:             equ $DF68 ;; Timer 4 Counter Low
+   165 -             0000DF67    T3CH:             equ $DF67 ;; Timer 3 Counter High
+   166 -             0000DF66    T3CL:             equ $DF66 ;; Timer 3 Counter Low
+   167 -             0000DF65    T2CH:             equ $DF65 ;; Timer 2 Counter High
+   168 -             0000DF64    T2CL:             equ $DF64 ;; Timer 2 Counter Low
+   169 -             0000DF63    T1CH:             equ $DF63 ;; Timer 1 Counter High
+   170 -             0000DF62    T1CL:             equ $DF62 ;; Timer 1 Counter Low
+   171 -             0000DF61    T0CH:             equ $DF61 ;; Timer 0 Counter High
+   172 -             0000DF60    T0CL:             equ $DF60 ;; Timer 0 Counter Low
+   173 -                       ;;  Latches
+   174 -             0000DF5F    T7LH:             equ $DF5F ;; Timer 7 Latch High
+   175 -             0000DF5E    T7LL:             equ $DF5E ;; Timer 7 Latch Low
+   176 -             0000DF5F    T6LH:             equ $DF5F ;; Timer 6 Latch High
+   177 -             0000DF5E    T6LL:             equ $DF5E ;; Timer 6 Latch Low
+   178 -             0000DF5F    T5LH:             equ $DF5F ;; Timer 5 Latch High
+   179 -             0000DF5E    T5LL:             equ $DF5E ;; Timer 5 Latch Low
+   180 -             0000DF5F    T4LH:             equ $DF5F ;; Timer 4 Latch High
+   181 -             0000DF5E    T4LL:             equ $DF5E ;; Timer 4 Latch Low
+   182 -             0000DF5F    T3LH:             equ $DF5F ;; Timer 3 Latch High
+   183 -             0000DF5E    T3LL:             equ $DF5E ;; Timer 3 Latch Low
+   184 -             0000DF5F    T2LH:             equ $DF5F ;; Timer 2 Latch High
+   185 -             0000DF5E    T2LL:             equ $DF5E ;; Timer 2 Latch Low
+   186 -             0000DF5F    T1LH:             equ $DF5F ;; Timer 1 Latch High
+   187 -             0000DF5E    T1LL:             equ $DF5E ;; Timer 1 Latch Low
+   188 -             0000DF5F    T0LH:             equ $DF5F ;; Timer 0 Latch High
+   189 -             0000DF5E    T0LL:             equ $DF5E ;; Timer 0 Latch Low
+   190 -                       ;; On Chip RAM
+   191 -             0000DF80    OCRAM_BASE: equ $DF80 ;; RAM Registers
+   192 -                       
+   193 -                       ;; Emulation Mode Vector Table
+   194 -             0000FFFE    IRQBRK:           equ $FFFE ;; BRK - Software Interrupt
+   195 -             0000FFFC    IRQRES:           equ $FFFC ;; RES - "REStart" Interrupt
+   196 -             0000FFFA    IRQNMI:           equ $FFFA ;; Non-Maskable Interrupt
+   197 -             0000FFF8    IABORT:           equ $FFF8 ;; ABORT Interrupt
+   198 -                       ;  IRQRVD:          equ $FFF6 ;; Reserved
+   199 -             0000FFF4    IRQCOP:           equ $FFF4 ;; COP Software Interrupt
+   200 -                       ;  IRQRVD:          equ $FFF2 ;; Reserved
+   201 -                       ;  IRQRVD:          equ $FFF0 ;; Reserved
+   202 -             0000FFDE    IRQ:              equ $FFDE  ;; IRQ Level Interrupt
+   203 -             0000FFDC    IRQPIB:           equ $FFDC  ;; PIB Interrupt
+   204 -             0000FFDA    IRNE66:           equ $FFDA  ;; Negative Edge Interrupt on P66
+   205 -             0000FFD8    IRNE64:           equ $FFD8    ;; Negative Edge Interrupt on P64
+   206 -             0000FFD6    IRPE62:           equ $FFD6    ;; Positive Edge Interrupt on P62 for PWM
+   207 -             0000FFD4    IRPE60:           equ $FFD4    ;; Positive Edge Interrupt on P60
+   208 -             0000FFD2    IRNE57:           equ $FFD2  ;; Negative Edge Interrupt on P57
+   209 -             0000FFD0    IRPE56:           equ $FFD0    ;; Positive Edge Interrupt on P56
+   210 -             0000FFCE    IRQT7:        equ $FFCE    ;; Timer 7 Interrupt
+   211 -             0000FFCC    IRQT6:        equ $FFCC    ;; Timer 6 Interrupt
+   212 -             0000FFCA    IRQT5:        equ $FFCA    ;; Timer 5 Interrupt
+   213 -             0000FFC8    IRQT4:        equ $FFC8    ;; Timer 4 Interrupt
+   214 -             0000FFC6    IRQT3:        equ $FFC6    ;; Timer 3 Interrupt
+       -                
+   215 -             0000FFC4    IRQT2:        equ $FFC4    ;; Timer 2 Interrupt
+   216 -             0000FFC2      IRQT1:          equ $FFC2    ;; Timer 1 Interrupt
+   217 -             0000FFC0      IRQT0:          equ $FFC0    ;; Timer 0 Interrupt
+   218 -                       
+   219 -                       
+   220 -                       ;       CHIP    65C02
+   221 -                               LONGI   OFF
+   222 -                               LONGA   OFF
+   223 -                       
+   224 -                           .sttl "W65C265S Demo Code"
+   225 -                           .page
+   226 -                       ;***************************************************************************
+   227 -                       ;***************************************************************************
+   228 -                       ;                    W65C265S_Demo Code Section
+   229 -                       ;***************************************************************************
+   230 -                       ;***************************************************************************
+   231 -                       
+   232 -                       ;
+   233 -                       ;Example code to make an LED connected to P72 turn ON.
+   234 -                       
+   235 -                       
+   236 -                               org $2000
+   237 -                       
+   238 -                           START:
+   239 -                               ;Initialize the stack
+   240 - 00:2000  78                   sei
+   241 - 00:2001  D8                   cld
+   242 - 00:2002  A2 FF                ldx #$ff
+   243 - 00:2004  9A                   txs
+   244 -                               ;This is the code for the demo
+   245 -                               ;This part is just checking the registers that are effected
+   246 - 00:2005  AD 27 DF             lda PCS7                ; Load value of P7x Data Direction Register.
+   247 - 00:2008  8D 00 30             sta $3000               ; Store for Debug - Should be 0xFBh
+   248 - 00:200B  AD 23 DF             lda PD7                 ; Load value of P7x Data Register
+   249 - 00:200E  8D 01 30             sta $3001               ; Store for Debug - should be 0x04h
+   250 -                               ;This part is what actually turns the LED ON
+   251 - 00:2011  A9 00                lda #$00                ; Set Bit 2 low to make LED turn ON
+   252 - 00:2013  8D 23 DF             sta PD7                 ; Sets P72 HIGH.
+   253 - 00:2016  00 00                brk                         ; ReTurn from subroutine Long - 
+   254 - 00:2018  A9 04            lda #$04
+   255 - 00:201A  8D 23 DF         sta PD7
+   256 - 00:201D  00 00            brk
+   257 -                       
+   258 -                       ;;-------------------------------------------------------------------------
+   259 -                       ;; FUNCTION NAME    : Event Hander re-vectors
+   260 -                       ;;------------------:------------------------------------------------------
+   261 -                           IRQHandler:
+   262 - 00:201F  48                   pha
+   263 - 00:2020  68                   pla
+   264 - 00:2021  40                   rti
+   265 -                       
+   266 -                       badVec:     ; $FFE0 - IRQRVD2(134)
+   267 - 00:2022  08               php
+   268 - 00:2023  48               pha
+   269 - 00:2024  A9 FF            lda #$FF
+   270 -                                       ;clear Irq
+   271 - 00:2026  68               pla
+   272 - 00:2027  28               plp
+   273 - 00:2028  40               rti
+   274 -                               ;;-----------------------------
+   275 -                               ;;
+   276 -                               ;;      Reset and Interrupt Vectors (define for 265, 816/02 are subsets)
+   277 -                               ;;
+   278 -                               ;;-----------------------------
+   279 -                       
+   280 -                       Shadow_VECTORS  SECTION OFFSET $7EE0
+   281 -                                           ;65C816 Interrupt Vectors
+   282 -                                           ;Status bit E = 0 (Native mode, 16 bit mode)
+   283 - 00:7EE0  22 20                dw  badVec      ; $FFE0 - IRQRVD4(816)
+   284 - 00:7EE2  22 20                dw  badVec      ; $FFE2 - IRQRVD5(816)
+   285 - 00:7EE4  22 20                dw  badVec      ; $FFE4 - COP(816)
+   286 - 00:7EE6  22 20                dw  badVec      ; $FFE6 - BRK(816)
+   287 - 00:7EE8  22 20                dw  badVec      ; $FFE8 - ABORT(816)
+   288 - 00:7EEA  22 20                dw  badVec      ; $FFEA - NMI(816)
+   289 - 00:7EEC  22 20                dw  badVec      ; $FFEC - IRQRVD(816)
+   290 - 00:7EEE  22 20                dw  badVec      ; $FFEE - IRQ(816)
+   291 -                                           ;Status bit E = 1 (Emulation mode, 8 bit mode)
+   292 - 00:7EF0  22 20                dw  badVec      ; $FFF0 - IRQRVD2(8 bit Emulation)(IRQRVD(265))
+   293 - 00:7EF2  22 20                dw  badVec      ; $FFF2 - IRQRVD1(8 bit Emulation)(IRQRVD(265))
+   294 - 00:7EF4  22 20                dw  badVec      ; $FFF4 - COP(8 bit Emulation)
+   295 - 00:7EF6  22 20                dw  badVec      ; $FFF6 - IRQRVD0(8 bit Emulation)(IRQRVD(265))
+   296 - 00:7EF8  22 20                dw  badVec      ; $FFF8 - ABORT(8 bit Emulation)
+   297 -                       
+   298 -                                           ; Common 8 bit Vectors for all CPUs
+   299 - 00:7EFA  22 20                dw  badVec      ; $FFFA -  NMIRQ (ALL)
+   300 - 00:7EFC  00 20                dw  START       ; $FFFC -  RESET (ALL)
+   301 - 00:7EFE  1F 20                dw  IRQHandler  ; $FFFE -  IRQBRK (ALL)
+   302 -                       
+   303 - 00:7F00                   ends
+   304 -                       
+   305 -                       vectors SECTION OFFSET $FFE0
+   306 -                                           ;65C816 Interrupt Vectors
+   307 -                                           ;Status bit E = 0 (Native mode, 16 bit mode)
+   308 - 00:FFE0  22 20                dw  badVec      ; $FFE0 - IRQRVD4(816)
+   309 - 00:FFE2  22 20                dw  badVec      ; $FFE2 - IRQRVD5(816)
+   310 - 00:FFE4  22 20                dw  badVec      ; $FFE4 - COP(816)
+   311 - 00:FFE6  22 20                dw  badVec      ; $FFE6 - BRK(816)
+   312 - 00:FFE8  22 20                dw  badVec      ; $FFE8 - ABORT(816)
+   313 - 00:FFEA  22 20                dw  badVec      ; $FFEA - NMI(816)
+   314 - 00:FFEC  22 20                dw  badVec      ; $FFEC - IRQRVD(816)
+   315 - 00:FFEE  22 20                dw  badVec      ; $FFEE - IRQ(816)
+   316 -                                           ;Status bit E = 1 (Emulation mode, 8 bit mode)
+   317 - 00:FFF0  22 20                dw  badVec      ; $FFF0 - IRQRVD2(8 bit Emulation)(IRQRVD(265))
+   318 - 00:FFF2  22 20                dw  badVec      ; $FFF2 - IRQRVD1(8 bit Emulation)(IRQRVD(265))
+   319 - 00:FFF4  22 20                dw  badVec      ; $FFF4 - COP(8 bit Emulation)
+   320 - 00:FFF6  22 20                dw  badVec      ; $FFF6 - IRQRVD0(8 bit Emulation)(IRQRVD(265))
+   321 - 00:FFF8  22 20                dw  badVec      ; $FFF8 - ABORT(8 bit Emulation)
+   322 -                       
+   323 -                                           ; Common 8 bit Vectors for all CPUs
+   324 - 00:FFFA  22 20                dw  badVec      ; $FFFA -  NMIRQ (ALL)
+   325 - 00:FFFC  00 20                dw  START       ; $FFFC -  RESET (ALL)
+   326 - 00:FFFE  1F 20                dw  IRQHandler  ; $FFFE -  IRQBRK (ALL)
+   327 -                       
+   328 - 01:0000                       ends
+   329 -                                   end
+       -          mbled: 329  
+       -                  Errors: 0

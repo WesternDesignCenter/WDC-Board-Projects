@@ -1,0 +1,6 @@
+WDC Object Viewer  EVALCOPY Jan 19 2006 12:36:01
+
+Module: W65C265S_TGXKOHN.obj
+
+section CODE     org=$1000 size=$A7
+

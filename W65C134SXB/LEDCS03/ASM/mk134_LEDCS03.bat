@@ -1,0 +1,17 @@
+REM 8LED Interface
+REM 09/14/2016
+
+del *.bin
+del *.obj
+del *.lst
+del *.hex
+del *.s28
+
+WDC02AS -g -l -DUSING_134 W65C134S_LEDCS03.asm
+WDCLN -g -sz -t -HI W65C134S_LEDCS03
+WDCLN -g -sz -t -HM28 W65C134S_LEDCS03
+WDCLN -g -sz -t -HZ W65C134S_LEDCS03
+WDCSYM -A -L W65C134S_LEDCS03.sym>W65C134S_LEDCS03_sym.txt
+WDCOBJ W65C134S_LEDCS03>W65C134S_LEDCS03_obj.txt
+easysxb.exe
+pause

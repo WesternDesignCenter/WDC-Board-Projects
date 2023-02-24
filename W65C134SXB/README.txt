@@ -1,0 +1,1 @@
+This folder is the project folder for the W65C134SXB board.  WDC supplies a demo project and more projects can be added here.  
